@@ -1,6 +1,6 @@
 [Activity]
-name = Taller del Artesano
-activity_version = 2
-bundle_id = org.somosazucar.TallerdeArtesano
+name = Comodo
+activity_version = 1
+bundle_id = org.somosazucar.Comodo
 icon = activity
 exec = sugar-activity activity.Activity

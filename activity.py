@@ -82,10 +82,12 @@ class Activity(sugar.activity.activity.Activity):
 
         gobject.timeout_add(300, self.pump)
         gobject.timeout_add(2000, self.init_interpreter)
-        gobject.timeout_add(1000, self.build_editor)
+        #gobject.timeout_add(1000, self.build_editor)
         gobject.timeout_add(1500, self.check_modified)
 
         self.build_toolbar()    
+        self.editor = None
+        #self.reader = None
         self._pygamecanvas.run_pygame(self.run_game)
 
     def redraw(self, widget=None, b=None, c=None):
@@ -180,6 +182,13 @@ class Activity(sugar.activity.activity.Activity):
         self.h.show()
         self.open_file(None, f)
 
+    def build_reader(self):
+        self.reader = webkit.WebView()
+        curdir = os.getcwd()
+        self.reader.load_uri("file://%s/docs/index.html" % curdir)
+        self.box.append_page(self.reader, gtk.Label("Lector"))
+        self.reader.show()
+
     def build_toolbar(self):
         toolbar_box = ToolbarBox()
         self.set_toolbar_box(toolbar_box)
@@ -209,6 +218,17 @@ class Activity(sugar.activity.activity.Activity):
         button.connect('clicked', self.show_editor)
         toolbar_box.toolbar.insert(button, -1)
         button.show()
+
+        """ # Desactivado por no tener soporte en OLPC OS 13.2.0
+        button = RadioToolButton()
+        button.props.icon_name = 'read'
+        button.set_tooltip(_('Documentos'))
+        button.accelerator = "<Ctrl>3"
+        button.props.group = tool_group
+        button.connect('clicked', self.show_reader)
+        toolbar_box.toolbar.insert(button, -1)
+        button.show()
+        """ 
 
         separator = gtk.SeparatorToolItem()
         toolbar_box.toolbar.insert(separator, -1)
@@ -268,7 +288,15 @@ class Activity(sugar.activity.activity.Activity):
         self.redraw()
 
     def show_editor(self, widget):
+        if not self.editor:
+            self.build_editor()
         self.box.set_page(2)
+        self.redraw()
+
+    def show_reader(self, widget):
+        if not self.reader:
+            self.build_reader()
+        self.box.set_page(3)
         self.redraw()
 
     def restart_game(self, widget):
@@ -299,7 +327,8 @@ class Activity(sugar.activity.activity.Activity):
         pass
 
     def can_close(self):
-        self.editor.close()
+        if self.editor:
+            self.editor.close()
         self.box.set_page(0)
         try:
             spyral.director.quit()
@@ -411,7 +440,6 @@ class VimSourceView(VimWrapper):
     def __init__(self, sock_id):
         VimWrapper.__init__(self,  vimExec = "/usr/bin/gvim")
 
-        print sock_id
         self.start(sock_id=sock_id)
         self.sendKeys(":set guioptions=M<CR>i")
         self.bufInfo.addEventHandler(self.event_handler)
