@@ -60,7 +60,11 @@ class Activity(sugar.activity.activity.Activity):
         self.box.set_show_tabs(False)
 
         self.splash = gtk.Image()
-        self.splash.set_from_file("images/splash.png")
+        pixbuf = gtk.gdk.pixbuf_new_from_file("images/splash_comodo.png")
+        screen = self.window.get_screen()
+        width, height = screen.get_width(), screen.get_height() - style.GRID_CELL_SIZE
+        pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+        self.splash.set_from_pixbuf(pixbuf)
         self.splash.show()
         eb = gtk.EventBox()
         eb.add(self.splash)

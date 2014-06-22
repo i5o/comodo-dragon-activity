@@ -2,5 +2,5 @@
 name = Comodo
 activity_version = 1
 bundle_id = org.somosazucar.Comodo
-icon = activity
+icon = activity-comodo
 exec = sugar-activity activity.Activity
