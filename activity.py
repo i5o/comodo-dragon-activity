@@ -274,7 +274,7 @@ class Activity(sugar.activity.activity.Activity):
 
     def run_game(self):
         spyral.director.init((0,0), fullscreen=False, max_fps=30)
-        self.game = JUEGO.Juego(activity=self)
+        self.game = JUEGO.Juego(self, callback=self.game_ready)
         self.box.connect("switch-page", self.redraw)
         spyral.director.push(self.game)
         self.start()
@@ -314,7 +314,7 @@ class Activity(sugar.activity.activity.Activity):
         watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
         self.window.set_cursor(watch)
         JUEGO = reload(JUEGO)
-        self.game = JUEGO.Juego(activity=self)
+        self.game = JUEGO.Juego(self, callback=self.game_ready)
         spyral.director.replace(self.game)
         self.start()
 

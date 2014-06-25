@@ -251,8 +251,8 @@ class Juego(spyral.Scene):
 
         #self.clock = pygame.time.Clock()
         self.tick=0
-        self.fps = spyral.debug.FPSSprite(self, (255,0,0))
-        self.fps.pos = spyral.Vec2D(self.size)/2
+        #self.fps = spyral.debug.FPSSprite(self, (255,0,0))
+        #self.fps.pos = spyral.Vec2D(self.size)/2
 
         # Define la función "chequea" para determinar el estado del juego
         spyral.event.register("director.update", self.chequea)
