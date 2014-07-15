@@ -25,7 +25,7 @@ from sugar.activity.widgets import StopButton
 from sugar.graphics.alert import NotifyAlert
 
 from libraries.console.interactiveconsole import GTKInterpreterConsole
-from libraries.pyvimwrapper.vimWrapper import VimWrapper
+#from libraries.pyvimwrapper.vimWrapper import VimWrapper
 try:
     import gtksourceview2
 except ImportError:
@@ -50,7 +50,7 @@ class Activity(sugar.activity.activity.Activity):
     def __init__(self, handle):
         super(Activity, self).__init__(handle)
         self.paused = False
-        
+
         watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
         self.window.set_cursor(watch)
 
@@ -77,7 +77,7 @@ class Activity(sugar.activity.activity.Activity):
         self._pygamecanvas = sugargame2.canvas.PygameCanvas(self)
         self._pygamecanvas.set_flags(gtk.EXPAND)
         self._pygamecanvas.set_flags(gtk.FILL)
-       
+
         self.connect("visibility-notify-event", self.redraw)
         self._pygamecanvas.set_events(gtk.gdk.BUTTON_PRESS_MASK)
         self._pygamecanvas.connect("button-press-event", self._pygamecanvas.grab_focus)
@@ -91,7 +91,8 @@ class Activity(sugar.activity.activity.Activity):
         #gobject.timeout_add(1000, self.build_editor)
         gobject.timeout_add(1500, self.check_modified)
 
-        self.build_toolbar()    
+        self.build_toolbar()
+        self.credits = None
         self.editor = None
         #self.reader = None
         self._pygamecanvas.run_pygame(self.run_game)
@@ -167,7 +168,7 @@ class Activity(sugar.activity.activity.Activity):
             self.socket.show()
             self.h.pack2(self.socket)
             sock_id = str(self.socket.get_id())
-            self.editor = VimSourceView(sock_id) 
+            self.editor = VimSourceView(sock_id)
 
             if not self.editor.bufInfo.bufferList:
                 f = JUEGO.__file__
@@ -234,7 +235,7 @@ class Activity(sugar.activity.activity.Activity):
         button.connect('clicked', self.show_reader)
         toolbar_box.toolbar.insert(button, -1)
         button.show()
-        """ 
+        """
 
         separator = gtk.SeparatorToolItem()
         toolbar_box.toolbar.insert(separator, -1)
@@ -277,7 +278,7 @@ class Activity(sugar.activity.activity.Activity):
 
         button = ToolButton()
         button.props.icon_name = 'activity-about'
-        button.set_tooltip(_('Ayuda'))
+        button.set_tooltip(_('Acerca de'))
         button.accelerator = "<Ctrl>i"
         button.connect('clicked', self.run_credits)
         toolbar_box.toolbar.insert(button, -1)
@@ -303,8 +304,9 @@ class Activity(sugar.activity.activity.Activity):
         self.start()
 
     def run_credits(self, widget):
-        self.credits = game.credits.Creditos(self.game.size)
-        spyral.director.push(self.credits)
+        if not (spyral.director.get_scene()==self.credits):
+            self.credits = game.credits.Creditos(self.game.size)
+            spyral.director.push(self.credits)
 
     def start(self):
         try:
@@ -462,49 +464,11 @@ class FileViewer(gtk.ScrolledWindow):
             file_path = model.get_value(tree_iter, 1)
         self.emit('file-selected', file_path)
 
-class VimSourceView(VimWrapper):
-    """
-    Visor de código basado en GVim
-    TENÍA QUE HACERLO :-)
-    """
-
-    def __init__(self, sock_id):
-        VimWrapper.__init__(self,  vimExec = "/usr/bin/gvim")
-
-        self.start(sock_id=sock_id)
-        self.sendKeys(":set guioptions=M<CR>i")
-        self.bufInfo.addEventHandler(self.event_handler)
-
-    def open_file(self, widget, path):
-        if path:
-            if not os.path.isdir(path):
-                self.sendKeys(":e %s<CR>" % path)
-                if is_xo:
-                    self.fix_fonts()
-
-    def fix_fonts(self):
-        font = "Monospace\\ " + str(int(10/style.ZOOM_FACTOR))
-        self.sendKeys(":set guifont=%s<CR>" % font)
-
-    def save_file(self):
-        self.sendKeys(":w<CR>")
-
-    def event_handler(self, event, path):
-        logging.debug("EVENT, %s, %s" % (event, path))
-        if event=="killed":
-            self.close()
-
-    def modificado(self):
-        return self.isBufferModified(-1)
-
-    def current_file(self):
-        cur_buf = self.getBufId()
-        filename = self.bufInfo.pathOfBufId(cur_buf)
-        return filename
 
 class SourceView(gtksourceview2.View):
     """
     Visor de código para archivos abiertos.
+    Realmente no todos comprenderán las virtudes de VIM.
     """
 
     def __init__(self):

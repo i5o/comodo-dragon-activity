@@ -6,7 +6,6 @@ import math
 import random
 
 splash_done = False
-from objetos import fps
 
 class Fondo(spyral.Sprite):
     def __init__(self, scene, lugar):
@@ -233,7 +232,7 @@ class Premio(spyral.Sprite):
             self.reset()
             self.yay.play()
             if self.scene.comodo.vida <= 75:
-                self.scene.comodo.vida += 25 
+                self.scene.comodo.vida += 25
             else:
                 self.scene.comodo.vida = 100
         if self.x==0 - self.width:
@@ -248,10 +247,9 @@ class Juego(spyral.Scene):
     def __init__(self, activity=None, SIZE=None, *args, **kwargs):
         spyral.Scene.__init__(self, SIZE)
 
-
         # Estrategia para ganar rendimiento en la XO:
         # En vez de deslizar todo el fondo de la pantalla, hemos escogido una
-        # imagen que podemos recortar como una franja, dejando colores sólidos 
+        # imagen que podemos recortar como una franja, dejando colores sólidos
         # arriba y abajo.
         self.background = spyral.Image(size=self.size).fill((109,164,26))
         self.layers = ["fondo", "frente"]
@@ -268,20 +266,13 @@ class Juego(spyral.Scene):
         self.comodo = Comodo(self)
         self.barra = Barra_de_Vida(self)
 
-
-        #self.clock = pygame.time.Clock()
         self.tick=0
-        #self.fps = spyral.debug.FPSSprite(self, (255,0,0))
-        #self.fps.pos = spyral.Vec2D(self.size)/2
-
-        # Define la función "chequea" para determinar el estado del juego
-        #spyral.event.register("director.update", self.chequea)
 
         # Esto es para poder salir correctamente del juego
         spyral.event.register("system.quit", spyral.director.pop)
 
-        spyral.event.register("director.scene.enter", fps)
         spyral.event.register("director.scene.enter", self.wave)
+        self.spawned = False
 
         # Este código es para salir de la imagen de inicio del juego
         if activity:
@@ -292,12 +283,15 @@ class Juego(spyral.Scene):
             self.activity = activity
 
     def wave(self):
-        for i in range(0,6):
-            m = Mostro(self)
-        p = Premio(self)
+        if not self.spawned:
+            for i in range(0,6):
+                m = Mostro(self)
+            p = Premio(self)
+        self.spawned = True
+
 
 if __name__ == "__main__":
     size = (800, 600)
     spyral.director.init( size )
-    spyral.director.push( Juego(SIZE=size) ) 
+    spyral.director.push( Juego(SIZE=size) )
     spyral.director.run()

@@ -9,7 +9,8 @@ class Creditos(spyral.Scene):
 
         self.velocidad = 20.0
 
-        spyral.event.register("input.keyboard.down.*", spyral.director.pop)
+        spyral.event.register("input.keyboard.down.*", self.leave)
+        spyral.event.register("input.mouse.down.*", self.leave)
 
         sprites = [
                 MultiTexto(self, "Taller del Artesano", style="title"),
@@ -55,25 +56,27 @@ class Creditos(spyral.Scene):
                 MultiTexto(self, u"Este juego fue desarrollado en el contexto del Taller \
                                     de Artesanía en Programación de Videojuegos \
                                     desarrollado en Chía durante 2014."),
-                MultiTexto(self, u"""Colaboradores: Johan Camilo Adames Sanchez
-                                    Cristian Camilo Aguirre Quiroga
-                                    Yojan Stiven Chamorro Rodriguez
-                                    Laura Catalina Medina Arriero
-                                    Duvan Alexis Pisco Adames
-                                    Jose Benjamin Quiroga Torres
-                                    Johan Smith Sanchez
-                                    Johan David Barrera Espeleta
-                                    Andres Felipe Rozo Garzón
+                MultiTexto(self, u"""Colaboradores: Johan Camilo Adames Sanchez,
+                                    Cristian Camilo Aguirre Quiroga,
+                                    Yojan Stiven Chamorro Rodriguez,
+                                    Laura Catalina Medina Arriero,
+                                    Duvan Alexis Pisco Adames,
+                                    Jose Benjamin Quiroga Torres,
+                                    Johan Smith Sanchez,
+                                    Johan David Barrera Espeleta,
+                                    Andres Felipe Rozo Garzón,
                                     Maurel Yurani Diaz Mendivieso"""),
                 MultiTexto(self, u"Copyright © 2014 Sebastian Silva, Laura Vargas."),
                 LogoSprite(self, "images/gplv3.png"),
                 MultiTexto(self, u"""
-Este programa es software libre. Puede redistribuirlo y/o modificarlo bajo los términos de la Licencia Pública General de GNU tal como está publicada por la Free Software Foundation, bien de la versión 3 de dicha Licencia o bien (según su elección) de cualquier versión posterior.\n
-Este programa se distribuye con la esperanza de que sea útil, pero SIN NINGUNA GARANTÍA, incluso sin la garantía MERCANTIL implícita o sin garantizar la CONVENIENCIA PARA UN PROPÓSITO PARTICULAR. Véase la Licencia Pública General de GNU para más detalles.\n
-Usted debería haber recibido una copia de la Licencia Pública General junto con este programa. Si no ha sido así, consulte <http://www.gnu.org/licenses>."""),
+                                Este programa es software libre. Puede redistribuirlo y/o modificarlo bajo los términos de la Licencia Pública General de GNU tal como está publicada por la Free Software Foundation, bien de la versión 3 de dicha Licencia o bien (según su elección) de cualquier versión posterior.\n
+                                Este programa se distribuye con la esperanza de que sea útil, pero SIN NINGUNA GARANTÍA, incluso sin la garantía MERCANTIL implícita o sin garantizar la CONVENIENCIA PARA UN PROPÓSITO PARTICULAR. Véase la Licencia Pública General de GNU para más detalles.\n
+                                Usted debería haber recibido una copia de la Licencia Pública General junto con este programa. Si no ha sido así, consulte <http://www.gnu.org/licenses>."""),
                 Espacio(self, 200),
                 MultiTexto(self, u"Ningún dragón fue lastimado durante la producción de este videojuego.", style="small"),
                 ]
+
+        self.leaving = None
 
         cur_place = self.height
         for sprite in sprites:
@@ -88,6 +91,11 @@ Usted debería haber recibido una copia de la Licencia Pública General junto co
         tiempo = distancia / self.velocidad
         anim = spyral.Animation( "y", spyral.easing.Linear( sprite.y, -500), tiempo )
         sprite.animate(anim)
+
+    def leave(self):
+        if not self.leaving:
+            spyral.director.pop()
+        self.leaving = True
 
 class Espacio(spyral.Sprite):
     def __init__(self, scene, pixeles=30):
