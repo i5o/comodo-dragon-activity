@@ -1,29 +1,3 @@
-Primera escena
-==============
-
-Fondo blanco
-texto negro
-letra grande
-
-"Comodo vivía en una isla y le gustaba salir a pasear para resolver problemas antes de irse a acostar."
-
-2
-=
-
-Fondo "isla.png"
-Comodo anima despertar
-Comodo avanza torre 1
-Se escuchan olas.ogg
-
-3
-=
-
-Fondo blanco
-Texto negro
-"Comodo para continuar, la respuesta has de encontrar.'{puzle1}'"
-Fondo "torre1.png"
-
-
 Videogame Artisan Workshop
 ==========================
 
