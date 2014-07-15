@@ -14,6 +14,7 @@ import spyral
 
 import logging
 import traceback
+import helpbutton
 
 from sugar.graphics import style
 from sugar.graphics.toolbarbox import ToolbarBox
@@ -38,6 +39,7 @@ except ImportError:
 from pango import FontDescription
 
 import game.escena
+import game.credits
 
 JUEGO=game.escena
 
@@ -260,6 +262,27 @@ class Activity(sugar.activity.activity.Activity):
         toolbar_box.toolbar.insert(button, -1)
         button.show()
 
+        separator = gtk.SeparatorToolItem()
+        toolbar_box.toolbar.insert(separator, -1)
+        separator.show()
+
+        button = helpbutton.HelpButton(self)
+        #button = ToolButton()
+        #button.props.icon_name = 'toolbar-help'
+        #button.set_tooltip(_('Ayuda'))
+        #button.accelerator = "<Ctrl>h"
+        #button.connect('clicked', self.show_editor)
+        toolbar_box.toolbar.insert(button, -1)
+        button.show()
+
+        button = ToolButton()
+        button.props.icon_name = 'activity-about'
+        button.set_tooltip(_('Ayuda'))
+        button.accelerator = "<Ctrl>i"
+        button.connect('clicked', self.run_credits)
+        toolbar_box.toolbar.insert(button, -1)
+        button.show()
+
         # Blank space (separator) and Stop button at the end:
 
         separator = gtk.SeparatorToolItem()
@@ -278,6 +301,10 @@ class Activity(sugar.activity.activity.Activity):
         self.box.connect("switch-page", self.redraw)
         spyral.director.push(self.game)
         self.start()
+
+    def run_credits(self, widget):
+        self.credits = game.credits.Creditos(self.game.size)
+        spyral.director.push(self.credits)
 
     def start(self):
         try:

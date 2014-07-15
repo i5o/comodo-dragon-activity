@@ -5,9 +5,8 @@ import pygame
 import math
 import random
 
-import objetos
-
 splash_done = False
+from objetos import fps
 
 class Fondo(spyral.Sprite):
     def __init__(self, scene, lugar):
@@ -51,7 +50,6 @@ class Comodo(spyral.Sprite):
         spyral.Sprite.__init__(self, scene)
         self.image = spyral.Image(filename="images/comodo.png")
         self.layer = "frente"
-        self.scale = 0.5
         self.pos = (0, scene.height - self.height)
 
         self.estado = "normal"
@@ -90,6 +88,8 @@ class Comodo(spyral.Sprite):
         self.scene.fondo1.stop_all_animations()
         self.scene.fondo2.stop_all_animations()
         spyral.event.unregister("director.update", self.chequea)
+        spyral.event.unregister("input.keyboard.down.space", self.salto)
+        spyral.event.unregister("input.keyboard.down.up", self.salto)
         if not self.estado=="muerto":
             try:
                 animacion = spyral.Animation("scale", spyral.easing.QuadraticInOut(0.5, 0.01), duration=3)
@@ -136,57 +136,68 @@ class Barra_de_Vida (spyral.Sprite):
             self.visible = False
             spyral.event.queue ("Comodo.muere")
         else:
-            #self.scale_x = self.scene.comodo.vida/100.0
             self.actualiza()
 
 
 class Mostro(spyral.Sprite):
     def __init__(self, scene):
         spyral.Sprite.__init__(self, scene)
-        #self.image = spyral.Image(size=(50,50)).fill((255,0,0))
         self.image = spyral.Image(filename="images/ninjastar_dave_pena_01.png")
         self.layer = "frente"
         self.ouch = pygame.mixer.Sound('sounds/confusion.ogg')
 
-        self.pos = (scene.width, random.randint(60, scene.height - self.height))
+        self.pos = (scene.width + 2, random.randint(60, scene.height - self.height))
 
         spyral.event.register ("director.update", self.chequea)
         spyral.event.register("Comodo.muere", self.fin)
 
+        self.timer = 0
+        self.freq = random.random()*2
+        self.duration = random.random()*2+4
+
     def mover(self):
-        traslacion = spyral.Animation("x", spyral.easing.Linear(self.x, 0 - self.width), duration=5)
-        self.animate(traslacion)
+        self.traslacion = spyral.Animation("x", spyral.easing.Linear(self.x, 0 - self.width), duration=self.duration)
+        try:
+            self.animate(self.traslacion)
+        except ValueError:
+            pass
         #rotacion = spyral.Animation("angle", spyral.easing.Linear(2*math.pi,0), duration=1, loop=True)
         #self.animate(rotacion)
 
     def fin(self):
         self.stop_all_animations()
 
-    def desaparecer(self):
-        spyral.event.unregister("director.update", self.chequea)
-        self.kill()
-        del(self)
+    def reset(self):
+        self.stop_animation(self.traslacion)
+        self.x = self.scene.width + 2
+        self.y = random.randint(60, self.scene.height - self.height)
+        self.timer = 0
 
-    def chequea(self):
+    def chequea(self, delta):
         if self.collide_sprite(self.scene.comodo):
-            spyral.event.unregister("director.update", self.chequea)
-            self.desaparecer()
+            self.reset()
             self.ouch.play()
-            self.scene.comodo.vida -= 5 
+            self.scene.comodo.vida -= 20
         if self.x==0 - self.width:
-            self.desaparecer()
+            self.reset()
+        if self.x==self.scene.width + 2:
+            self.timer = self.timer + delta
+            if self.timer > self.freq:
+                self.mover()
 
 
 class Premio(spyral.Sprite):
     def __init__(self, scene):
         spyral.Sprite.__init__(self, scene)
-        #self.image = spyral.Image(size=(50,50)).fill((0,0,255))
         self.image = spyral.Image(filename="images/love-shield.png")
         self.layer = "frente"
 
         self.yay = pygame.mixer.Sound('sounds/heal.ogg')
 
-        self.pos = (scene.width, random.randint(60, scene.height - self.height))
+        self.pos = (scene.width + 2, random.randint(60, scene.height - self.height))
+        self.timer = 0
+        self.freq = random.random()*2
+        self.duration = random.random()*2+4
 
         self.estado = "normal"
 
@@ -195,34 +206,53 @@ class Premio(spyral.Sprite):
         spyral.event.register("Comodo.muere", self.fin)
 
     def mover(self):
-        animacion = spyral.Animation("x", spyral.easing.Linear(self.x, 0 - self.width), duration=5)
-        self.animate(animacion)
+        self.traslacion = spyral.Animation("x", spyral.easing.Linear(self.x, 0 - self.width), duration=self.duration)
+        try:
+            self.animate(self.traslacion)
+        except ValueError:
+            pass
 
     def fin(self):
         self.stop_all_animations()
 
-    def desaparecer(self):
-        self.kill()
-        del(self)
-
     def ascender(self):
         animacion = spyral.Animation("pos", spyral.easing.LinearTuple(self.pos, (-1*self.width, 0)), duration=1)
-        self.animate(animacion)
+        try:
+            self.animate(animacion)
+        except ValueError:
+            pass
 
-    def chequea(self):
+    def reset(self):
+        self.stop_animation(self.traslacion)
+        self.x = self.scene.width + 2
+        self.y = random.randint(60, self.scene.height - self.height)
+        self.timer = 0
+
+    def chequea(self, delta):
         if self.collide_sprite(self.scene.comodo):
-            spyral.event.unregister("director.update", self.chequea)
-            self.ascender()
+            self.reset()
             self.yay.play()
-            if self.scene.comodo.vida <= 95:
-                self.scene.comodo.vida += 5 
+            if self.scene.comodo.vida <= 75:
+                self.scene.comodo.vida += 25 
+            else:
+                self.scene.comodo.vida = 100
         if self.x==0 - self.width:
-            self.desaparecer()
+            self.reset()
+        if self.x==self.scene.width + 2:
+            self.timer = self.timer + delta
+            if self.timer > self.freq:
+                self.mover()
 
 
 class Juego(spyral.Scene):
     def __init__(self, activity=None, SIZE=None, *args, **kwargs):
         spyral.Scene.__init__(self, SIZE)
+
+
+        # Estrategia para ganar rendimiento en la XO:
+        # En vez de deslizar todo el fondo de la pantalla, hemos escogido una
+        # imagen que podemos recortar como una franja, dejando colores sólidos 
+        # arriba y abajo.
         self.background = spyral.Image(size=self.size).fill((109,164,26))
         self.layers = ["fondo", "frente"]
 
@@ -238,16 +268,6 @@ class Juego(spyral.Scene):
         self.comodo = Comodo(self)
         self.barra = Barra_de_Vida(self)
 
-        self.taller = spyral.Sprite(self)
-        self.taller.image = spyral.Image(filename="images/logo_labs.png")
-        self.taller.pos = (self.width - self.taller.width, self.height-30)
-        self.taller.scale = 1.3
-        self.taller.anchor = "midbottom"
-
-        self.taller2 = spyral.Sprite(self)
-        self.taller2.image = spyral.Image(filename="images/transformando.png")
-        self.taller2.pos = (self.width/2, self.height-self.taller.image.height)
-        self.taller2.anchor = "center"
 
         #self.clock = pygame.time.Clock()
         self.tick=0
@@ -255,12 +275,13 @@ class Juego(spyral.Scene):
         #self.fps.pos = spyral.Vec2D(self.size)/2
 
         # Define la función "chequea" para determinar el estado del juego
-        spyral.event.register("director.update", self.chequea)
+        #spyral.event.register("director.update", self.chequea)
 
         # Esto es para poder salir correctamente del juego
         spyral.event.register("system.quit", spyral.director.pop)
 
-        spyral.event.register("director.scene.enter", self.blink)
+        spyral.event.register("director.scene.enter", fps)
+        spyral.event.register("director.scene.enter", self.wave)
 
         # Este código es para salir de la imagen de inicio del juego
         if activity:
@@ -270,27 +291,13 @@ class Juego(spyral.Scene):
             activity.window.set_cursor(None)
             self.activity = activity
 
-    def blink(self):
-        global splash_done
-        if not splash_done:
-            delay = spyral.DelayAnimation(5)
-            moveout = spyral.Animation("y", spyral.easing.Linear(self.taller.y, self.height
-                                                                    + self.taller.height), duration=4)
-            self.taller.animate(delay + moveout)
-            moveout = spyral.Animation("y", spyral.easing.Linear(self.taller2.y, self.height 
-                                                                    + self.taller.height/2), duration=5)
-            self.taller2.animate(delay+moveout)
-            splash_done = True
+    def wave(self):
+        for i in range(0,6):
+            m = Mostro(self)
+        p = Premio(self)
 
-    def chequea(self, delta):
-        # Aquí creamos los objetos que van apareciendo
-        self.tick = self.tick + delta
-        if self.tick > 0.1:
-            posibilidad = random.random()
-            if posibilidad > 0.75:
-                nuevomostro = Mostro(self)
-                nuevomostro.mover()
-            if posibilidad < 0.12:
-                nuevopremio = Premio(self)
-                nuevopremio.mover()
-            self.tick = 0
+if __name__ == "__main__":
+    size = (800, 600)
+    spyral.director.init( size )
+    spyral.director.push( Juego(SIZE=size) ) 
+    spyral.director.run()

@@ -13,7 +13,8 @@ def reset():
 def fps():
     scene = spyral.director.get_scene()
     scene.fps = spyral.debug.FPSSprite(scene, (255,0,0))
-
+    scene.fps.layer = "frente"
+    scene.fps.pos = (100,100)
 
 class Carrito(spyral.Sprite):
     def __init__(self, scene):

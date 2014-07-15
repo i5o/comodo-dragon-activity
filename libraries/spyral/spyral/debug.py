@@ -57,7 +57,7 @@ class FPSSprite(spyral.Sprite):
         self._font = spyral.Font(spyral._get_spyral_path() +
                                 os.path.join("resources", "fonts",
                                              "DejaVuSans.ttf"),
-                                15, color)
+                                28, color)
         self._render(0, 0)
         self._update_in = 5
         spyral.event.register("director.update", self._update, scene=scene)
