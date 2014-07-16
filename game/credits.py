@@ -46,7 +46,7 @@ class Creditos(spyral.Scene):
                 MultiTexto(self, u"documentación disponible en <http://platipy.org/>", style="small"),
                 Espacio(self),
                 MultiTexto(self, u"Gracias al equipo Spyral por la excelente herramienta y a todos \
-                                   aquellos sobre cuyos hombros estamos."),
+                                   aquellos sobre cuyos hombros estamos parados."),
                 Espacio(self),
                 MultiTexto(self, u"obra facilitada y desarrollada por:"),
                 LogoSprite(self, "images/logo_labs.png"),

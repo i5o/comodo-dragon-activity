@@ -226,28 +226,6 @@ class Activity(sugar.activity.activity.Activity):
         toolbar_box.toolbar.insert(button, -1)
         button.show()
 
-        """ # Desactivado por no tener soporte en OLPC OS 13.2.0
-        button = RadioToolButton()
-        button.props.icon_name = 'read'
-        button.set_tooltip(_('Documentos'))
-        button.accelerator = "<Ctrl>3"
-        button.props.group = tool_group
-        button.connect('clicked', self.show_reader)
-        toolbar_box.toolbar.insert(button, -1)
-        button.show()
-        """
-
-        separator = gtk.SeparatorToolItem()
-        toolbar_box.toolbar.insert(separator, -1)
-        separator.show()
-
-        self.editor_button = ToolButton('sources')
-        self.editor_button.set_tooltip(_('Consola'))
-        self.editor_button.accelerator = "<Ctrl>grave"
-        self.editor_button.connect('clicked', self.toggle_console)
-        toolbar_box.toolbar.insert(self.editor_button, -1)
-        self.editor_button.show()
-
         self.save_button = ToolButton('dialog-ok')
         self.save_button.set_tooltip(_('Guardar'))
         self.save_button.accelerator = "<Ctrl>s"
@@ -256,6 +234,10 @@ class Activity(sugar.activity.activity.Activity):
         toolbar_box.toolbar.insert(self.save_button, -1)
         self.save_button.show()
 
+        separator = gtk.SeparatorToolItem()
+        toolbar_box.toolbar.insert(separator, -1)
+        separator.show()
+
         button = ToolButton('system-restart')
         button.set_tooltip(_('Reiniciar juego'))
         button.accelerator = "<Alt><Shift>r"
@@ -263,16 +245,18 @@ class Activity(sugar.activity.activity.Activity):
         toolbar_box.toolbar.insert(button, -1)
         button.show()
 
+        self.editor_button = ToolButton('sources')
+        self.editor_button.set_tooltip(_('Consola'))
+        self.editor_button.accelerator = "<Ctrl>grave"
+        self.editor_button.connect('clicked', self.toggle_console)
+        toolbar_box.toolbar.insert(self.editor_button, -1)
+        self.editor_button.show()
+
         separator = gtk.SeparatorToolItem()
         toolbar_box.toolbar.insert(separator, -1)
         separator.show()
 
         button = helpbutton.HelpButton(self)
-        #button = ToolButton()
-        #button.props.icon_name = 'toolbar-help'
-        #button.set_tooltip(_('Ayuda'))
-        #button.accelerator = "<Ctrl>h"
-        #button.connect('clicked', self.show_editor)
         toolbar_box.toolbar.insert(button, -1)
         button.show()
 
