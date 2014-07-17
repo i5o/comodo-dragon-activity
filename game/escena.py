@@ -4,6 +4,7 @@ import spyral.debug
 import pygame
 import math
 import random
+import gtk
 
 splash_done = False
 
@@ -57,6 +58,7 @@ class Comodo(spyral.Sprite):
 
         spyral.event.register("input.keyboard.down.space", self.salto)
         spyral.event.register("input.keyboard.down.up", self.salto)
+        spyral.event.register("input.keyboard.down.down", self.salto_abajo)
         spyral.event.register("Comodo.y.animation.end", self.fin_salto)
         spyral.event.register("Comodo.muere", self.muere)
 
@@ -71,6 +73,14 @@ class Comodo(spyral.Sprite):
         self.stop_all_animations()
         self.estado = "saltando"
         animacion = spyral.Animation("y", spyral.easing.CubicOut(self.y, self.y-100), duration=1)
+        self.animate(animacion)
+        self.flap.play()
+
+    def salto_abajo(self):
+        print self.y
+        self.stop_all_animations()
+        self.estado = "saltando"
+        animacion = spyral.Animation("y", spyral.easing.CubicOut(self.y, self.y+100), duration=1)
         self.animate(animacion)
         self.flap.play()
 
@@ -89,6 +99,7 @@ class Comodo(spyral.Sprite):
         spyral.event.unregister("director.update", self.chequea)
         spyral.event.unregister("input.keyboard.down.space", self.salto)
         spyral.event.unregister("input.keyboard.down.up", self.salto)
+        spyral.event.unregister("input.keyboard.down.down", self.salto_abajo)
         if not self.estado=="muerto":
             try:
                 animacion = spyral.Animation("scale", spyral.easing.QuadraticInOut(0.5, 0.01), duration=3)
@@ -103,6 +114,13 @@ class Comodo(spyral.Sprite):
         if self.y < self.cajita.y:
             self.stop_all_animations()
             self.cae()
+        max_y = gtk.gdk.screen_height() - self.image.width
+
+        if self.y > max_y:
+            spyral.event.unregister("input.keyboard.down.down", self.salto_abajo)
+        else:
+            spyral.event.register("input.keyboard.down.down", self.salto_abajo)
+
 
 
 class Barra_de_Vida (spyral.Sprite):
