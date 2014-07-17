@@ -114,7 +114,7 @@ class Comodo(spyral.Sprite):
         if self.y < self.cajita.y:
             self.stop_all_animations()
             self.cae()
-        max_y = gtk.gdk.screen_height() - self.image.width
+        max_y = gtk.gdk.screen_height() - (self.image.height * 1.5)
 
         if self.y > max_y:
             spyral.event.unregister("input.keyboard.down.down", self.salto_abajo)
